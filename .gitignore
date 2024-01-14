@@ -1,0 +1,4 @@
+/.DS_Store
+/argo-cd
+/eks-cluster
+/terraform-state-bucket

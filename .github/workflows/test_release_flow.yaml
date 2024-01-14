@@ -1,0 +1,43 @@
+name: Auto Semantic Versioning
+
+on:
+  # push:
+  #   branches:
+  #     - master
+  workflow_dispatch:
+
+jobs:
+  auto-versioning:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 
+
+      - name: Determine Next Version
+        id: next_version
+        run: |
+          chmod +x .github/scripts/calculate_version.sh
+          .github/scripts/calculate_version.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create and Push New Tag
+        if: steps.next_version.outputs.new_tag != ''
+        run: |
+          git tag $NEW_VERSION
+          git push origin $NEW_VERSION
+
+      - name: Create Release
+        if: steps.next_version.outputs.new_tag != ''
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        with:
+          tag_name: ${{ steps.next_version.outputs.new_tag }}
+          release_name: ${{ steps.next_version.outputs.new_tag }}
+          body: 'Automated release for ${{ steps.next_version.outputs.new_tag }}'
+          draft: false
+          prerelease: false
+        

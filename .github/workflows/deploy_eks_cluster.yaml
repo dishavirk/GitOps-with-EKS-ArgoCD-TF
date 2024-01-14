@@ -1,0 +1,65 @@
+name: Deploy EKS Cluster
+
+on:
+  # workflow_run:
+    #   workflows: ["Setup Terraform State"]
+    #   types:
+      #     - completed
+  workflow_dispatch:
+
+jobs:
+    deploy-eks-cluster:
+        runs-on: ubuntu-latest
+        permissions:
+          id-token: write
+          # pull-requests: write
+          # statuses: write
+        
+        # contents: read
+        steps:
+          - name: Checkout Code
+            uses: actions/checkout@v2
+
+          - name: Configure AWS Credentials for EKS Cluster
+            uses: aws-actions/configure-aws-credentials@v2
+            with:
+              role-to-assume: ${{ secrets.CI_ROLE }}
+              aws-region: eu-west-1
+
+          - name: Set up Terraform for EKS Cluster
+            uses: hashicorp/setup-terraform@v1
+            with:
+              terraform_wrapper: false
+
+          - name: Terraform Init for EKS Cluster
+            run: terraform init
+            working-directory: ./eks_cluster
+
+          - name: Terraform Plan for EKS Cluster
+            run: terraform plan
+            working-directory: ./eks_cluster
+
+          - name: Terraform Apply for EKS Cluster
+            run: terraform apply -auto-approve
+            working-directory: ./eks_cluster
+          
+          - name: Capture EKS Cluster Name
+            run: |
+              output=$(terraform output -json)
+              echo "CLUSTER_NAME=$(echo "$output" | jq -r '.cluster_name.value')" >> $GITHUB_ENV
+            working-directory: ./eks_cluster
+
+          - name: Trigger Repository Dispatch for ArgoCD Deployment
+            run: |
+              echo "Triggering repository dispatch with cluster name: $CLUSTER_NAME"
+              curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                   -H "Accept: application/vnd.github.v3+json" \
+                   "https://api.github.com/repos/${{ github.repository }}/dispatches" \
+                   -d "{\"event_type\": \"deploy_argocd\", \"client_payload\": {\"cluster_name\": \"$CLUSTER_NAME\"}}"
+            working-directory: ./eks_cluster
+          
+
+          
+          
+        
+        

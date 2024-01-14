@@ -1,0 +1,41 @@
+name: Deploy ArgoCD Application
+
+on:
+  workflow_dispatch:
+    inputs:
+      cluster_name:
+        description: 'EKS Cluster Name (leave empty to use output from Deploy EKS Cluster workflow)'
+        required: false
+        default: ''
+  repository_dispatch:
+    types: [deploy_argocd_app]
+
+
+jobs:
+  deploy-argocd-application:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v1
+
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Update kubeconfig
+        run: |
+          EKS_CLUSTER_NAME="${{ github.event.inputs.cluster_name || github.event.client_payload.cluster_name }}"
+          if [ -z "$EKS_CLUSTER_NAME" ]; then
+            echo "EKS cluster name is required."
+            exit 1
+          fi
+          aws eks update-kubeconfig --name "$EKS_CLUSTER_NAME" --region eu-west-1
+
+      - name: Apply ArgoCD Application Manifest
+        run: kubectl apply -f ./argocd_manifest.yaml
