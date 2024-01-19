@@ -2,9 +2,9 @@ name: Deploy EKS Cluster
 
 on:
   # workflow_run:
-    #   workflows: ["Setup Terraform State"]
-    #   types:
-      #     - completed
+      #   workflows: ["Setup Terraform State"]
+      #   types:
+          #     - completed
   workflow_dispatch:
 
 jobs:
@@ -12,10 +12,7 @@ jobs:
         runs-on: ubuntu-latest
         permissions:
           id-token: write
-          # pull-requests: write
-          # statuses: write
-        
-        # contents: read
+
         steps:
           - name: Checkout Code
             uses: actions/checkout@v2
