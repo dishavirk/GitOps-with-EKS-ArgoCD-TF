@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "bucket_name" {
   description = "Name of the S3 bucket for storing Terraform state"
   type        = string
-  default     = "my-tf01-state"
+  default     = "my-tfv1-state"
 }
 
 variable "create_bucket" {

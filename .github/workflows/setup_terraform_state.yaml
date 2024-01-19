@@ -18,7 +18,7 @@ jobs:
       actions: read
       contents: read
     env:
-      BUCKET_NAME: my-tf01-state
+      BUCKET_NAME: my-tfv1-state
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
