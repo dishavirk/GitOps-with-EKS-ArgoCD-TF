@@ -18,7 +18,7 @@ spec:
         app: celsius-to-fahrenheit-app
     spec:
       containers:
-      - image: dishavirk/celsius-to-fahrenheit:16
+      - image: dishavirk/celsius-to-fahrenheit:17
         name: celsius-to-fahrenheit-app
         resources: {}
 status: {}
