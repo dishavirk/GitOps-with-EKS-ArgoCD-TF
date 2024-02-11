@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: celsius-to-fahrenheit-app
+  name: celsius-to-fahrenheit-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: celsius-to-fahrenheit-app
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: celsius-to-fahrenheit-app
+    spec:
+      containers:
+      - image: dishavirk/celsius-to-fahrenheit:17
+        name: celsius-to-fahrenheit-app
+        resources: {}
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lb-service
+  labels:
+    app: lb-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 5000
+  selector:
+    app: celsius-to-fahrenheit-app
+
+
