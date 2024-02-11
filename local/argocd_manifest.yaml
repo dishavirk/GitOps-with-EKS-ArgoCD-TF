@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: celsius-to-fahrenheit
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/dishavirk/GitOps-with-EKS-ArgoCD-TF.git'
+    path: ./k8s_manifest
+    targetRevision: HEAD
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
